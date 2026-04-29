@@ -50,6 +50,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
 
   const activeConfig = ROLE_CONFIG[currentRole];
@@ -89,6 +90,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
     setSuccessMsg("");
     setIsLoading(true);
 
@@ -143,7 +145,20 @@ export default function Register() {
       }, 1500);
 
     } catch(err) {
-      setError(err.response?.data?.message || err.message || "Registration failed. Please check your inputs.");
+      const responseData = err.response?.data;
+      const apiFieldErrors = Array.isArray(responseData?.errors) ? responseData.errors : [];
+
+      if (apiFieldErrors.length > 0) {
+        const nextFieldErrors = apiFieldErrors.reduce((acc, item) => {
+          if (item?.field && item?.message) {
+            acc[item.field] = item.message;
+          }
+          return acc;
+        }, {});
+        setFieldErrors(nextFieldErrors);
+      }
+
+      setError(responseData?.message || err.message || "Registration failed. Please check your inputs.");
     } finally {
       setIsLoading(false);
     }
@@ -394,6 +409,9 @@ export default function Register() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+                )}
               </div>
             )}
 

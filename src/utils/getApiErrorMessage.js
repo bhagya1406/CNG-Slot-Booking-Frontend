@@ -6,8 +6,9 @@ export default function getApiErrorMessage(error, fallback = "Something went wro
   if (typeof data?.error === "string" && data.error.trim()) {
     return data.error;
   }
-  if (Array.isArray(data?.fieldErrors) && data.fieldErrors.length > 0) {
-    const first = data.fieldErrors[0];
+  const fieldErrors = Array.isArray(data?.errors) ? data.errors : data?.fieldErrors;
+  if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+    const first = fieldErrors[0];
     if (first?.message) return first.message;
   }
   if (typeof error?.message === "string" && error.message.trim()) {

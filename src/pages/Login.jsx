@@ -21,6 +21,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const [popup, setPopup] = useState({ open: false, title: 'Message', message: '', variant: 'info' });
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -31,6 +32,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
     if (!identifier || !password) {
       setError("Please fill in all credentials.");
@@ -69,7 +71,25 @@ export default function Login() {
         setError(response.data.message || "Failed to login. Please check credentials.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred during login.");
+      const responseData = err.response?.data;
+      const apiFieldErrors = Array.isArray(responseData?.errors) ? responseData.errors : [];
+
+      if (apiFieldErrors.length > 0) {
+        const nextFieldErrors = apiFieldErrors.reduce((acc, item) => {
+          if (item?.field && item?.message) {
+            acc[item.field] = item.message;
+          }
+          return acc;
+        }, {});
+        setFieldErrors(nextFieldErrors);
+      }
+
+      const backendMessage = (responseData?.message || "").toLowerCase();
+      if (backendMessage.includes("not found") || backendMessage.includes("invalid password")) {
+        setError("Invalid email or password");
+      } else {
+        setError(responseData?.message || "An error occurred during login.");
+      }
     }
   };
   return (
@@ -150,6 +170,9 @@ export default function Login() {
                 className={`w-full mt-1 p-3 rounded-lg border border-gray-300 focus:ring-2 ${theme.ring}`}
                 placeholder={activeConfig.inputPlaceholder}
               />
+              {fieldErrors.identifier && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.identifier}</p>
+              )}
             </div>
 
             {/* Password */}
@@ -172,6 +195,9 @@ export default function Login() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+              )}
               <div className="flex justify-end">
                 <button
                   type="button"
