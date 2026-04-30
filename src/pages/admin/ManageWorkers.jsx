@@ -32,6 +32,8 @@ export default function ManageWorkers() {
     password: ''
   });
 
+  const getWorkersCacheKey = (licenseNo) => `pump_workers_cache_${licenseNo || 'unknown'}`;
+
   const getCurrentUser = () => {
     const userStr = localStorage.getItem('user');
     if (!userStr) return null;
@@ -42,9 +44,37 @@ export default function ManageWorkers() {
     }
   };
 
+  const readCachedWorkers = () => {
+    const user = getCurrentUser();
+    const licenseNo = user?.licenseNo || user?.identifier;
+    if (!licenseNo) return [];
+    try {
+      const raw = localStorage.getItem(getWorkersCacheKey(licenseNo));
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const writeCachedWorkers = (nextWorkers) => {
+    const user = getCurrentUser();
+    const licenseNo = user?.licenseNo || user?.identifier;
+    if (!licenseNo) return;
+    try {
+      localStorage.setItem(getWorkersCacheKey(licenseNo), JSON.stringify(nextWorkers || []));
+    } catch {
+      // Ignore cache write failures (quota/private mode).
+    }
+  };
+
   const loadWorkers = async () => {
     setLoading(true);
     setErrorText('');
+    const cachedWorkers = readCachedWorkers();
+    if (cachedWorkers.length > 0) {
+      setWorkers(cachedWorkers);
+    }
     try {
       const user = getCurrentUser();
       const licenseNo = user?.licenseNo || user?.identifier;
@@ -52,7 +82,9 @@ export default function ManageWorkers() {
         params: licenseNo ? { licenseNo } : {},
       });
       if (res.data?.success) {
-        setWorkers(res.data.data || []);
+        const nextWorkers = res.data.data || [];
+        setWorkers(nextWorkers);
+        writeCachedWorkers(nextWorkers);
       } else {
         setErrorText(res.data?.message || 'Failed to fetch workers.');
       }
@@ -148,6 +180,18 @@ export default function ManageWorkers() {
         return;
       }
 
+      const createdWorker = {
+        workerId: res.data?.data || `temp-${Date.now()}`,
+        workerName: payload.workerName,
+        email: payload.email,
+        createdAt: new Date().toISOString(),
+      };
+      setWorkers((prev) => {
+        const exists = prev.some((w) => w.workerId === createdWorker.workerId);
+        const next = exists ? prev : [createdWorker, ...prev];
+        writeCachedWorkers(next);
+        return next;
+      });
       closeModal();
       await loadWorkers();
     } catch (err) {
@@ -189,6 +233,15 @@ export default function ManageWorkers() {
       }
 
       closeModal();
+      setWorkers((prev) => {
+        const next = prev.map((w) => (
+          w.workerId === editingWorker.workerId
+            ? { ...w, workerName: payload.workerName, email: payload.email }
+            : w
+        ));
+        writeCachedWorkers(next);
+        return next;
+      });
       await loadWorkers();
     } catch (err) {
       console.error('Error updating worker', err);
@@ -218,6 +271,11 @@ export default function ManageWorkers() {
         });
         return;
       }
+      setWorkers((prev) => {
+        const next = prev.filter((w) => w.workerId !== worker.workerId);
+        writeCachedWorkers(next);
+        return next;
+      });
       await loadWorkers();
     } catch (err) {
       console.error('Error deleting worker', err);
