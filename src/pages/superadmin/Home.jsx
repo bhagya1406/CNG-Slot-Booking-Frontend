@@ -47,9 +47,11 @@ export default function SuperAdminHome() {
 
   const workersByPump = dashboard?.workersByPump ?? [];
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (showPageLoader = false) => {
     setError('');
-    setLoading(true);
+    if (showPageLoader) {
+      setLoading(true);
+    }
     try {
       const [dashRes, pumpsRes] = await Promise.all([
         api.get('/super-admin/dashboard'),
@@ -71,8 +73,8 @@ export default function SuperAdminHome() {
   }, []);
 
   useEffect(() => {
-    load();
-    const t = setInterval(load, 10000);
+    load(true);
+    const t = setInterval(() => load(false), 30000);
     return () => clearInterval(t);
   }, [load]);
 

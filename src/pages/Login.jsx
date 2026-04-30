@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Fuel, ShieldCheck, ChevronRight } from "lucide-react";
 import ROLE_CONFIG from "../utils/ROLE_CONFIG";
 import themeClasses from "../utils/themeClasses";
@@ -16,6 +16,7 @@ const LOGIN_API_ROLE = {
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentRole, setCurrentRole] = useState("user");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +26,13 @@ export default function Login() {
 
   const [popup, setPopup] = useState({ open: false, title: 'Message', message: '', variant: 'info' });
   const [forgotOpen, setForgotOpen] = useState(false);
+
+  useEffect(() => {
+    const roleParam = searchParams.get("role");
+    if (roleParam && ROLE_CONFIG[roleParam]) {
+      setCurrentRole(roleParam);
+    }
+  }, [searchParams]);
 
   const activeConfig = ROLE_CONFIG[currentRole];
   const theme = themeClasses[activeConfig.color];

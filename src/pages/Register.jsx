@@ -141,7 +141,7 @@ export default function Register() {
       setSuccessMsg("Account created successfully!");
       setTimeout(() => {
         setSuccessMsg("");
-        navigate("/login");
+        navigate(`/login?role=${currentRole}`);
       }, 1500);
 
     } catch(err) {
@@ -445,7 +445,7 @@ export default function Register() {
             <p className="text-center text-sm mt-2">
               Already have an account?{" "}
               <Link
-                to="/login"
+                to={`/login?role=${currentRole}`}
                 className={`font-bold ${theme.text} hover:underline`}
               >
                 Sign In

@@ -32,11 +32,25 @@ export default function ManageWorkers() {
     password: ''
   });
 
+  const getCurrentUser = () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
+  };
+
   const loadWorkers = async () => {
     setLoading(true);
     setErrorText('');
     try {
-      const res = await api.get('/pump-workers/list');
+      const user = getCurrentUser();
+      const licenseNo = user?.licenseNo || user?.identifier;
+      const res = await api.get('/pump-workers/list', {
+        params: licenseNo ? { licenseNo } : {},
+      });
       if (res.data?.success) {
         setWorkers(res.data.data || []);
       } else {
@@ -102,8 +116,7 @@ export default function ManageWorkers() {
       return;
     }
 
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : {};
+    const user = getCurrentUser() || {};
     const licenseNo = user.licenseNo || user.identifier;
 
     if (!licenseNo) {
