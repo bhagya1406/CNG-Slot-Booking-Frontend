@@ -5,8 +5,8 @@ import Sidebar from '../components/Sidebar'
 import ChatbotWidget from '../components/ChatbotWidget'
 
 const HomeLayout = () => {
-  // Sidebar should be open by default on desktop
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  // Start with sidebar closed so content is visible first after login
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [userRole, setUserRole] = useState('user')
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
