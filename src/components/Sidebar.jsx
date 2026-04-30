@@ -34,7 +34,7 @@ const Sidebar = ({ userRole = 'user', onLogout, isOpen, setIsOpen }) => {
       {/* Sidebar Overlay for Mobile */}
       {isOpen && (
         <div
-          className="lg:hidden fixed top-[73px] left-0 right-0 bottom-0 bg-black/50 z-30"
+          className="lg:hidden fixed top-[73px] left-0 right-0 bottom-0 bg-black/50 z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -44,7 +44,7 @@ const Sidebar = ({ userRole = 'user', onLogout, isOpen, setIsOpen }) => {
         className={`
           fixed top-[73px] left-0 
           h-[calc(100vh-73px)]
-          w-56 bg-white shadow-lg transition-transform duration-300 z-20
+          w-56 bg-white shadow-lg transition-transform duration-300 z-50
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           flex flex-col
         `}

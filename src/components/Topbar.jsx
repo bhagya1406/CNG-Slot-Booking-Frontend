@@ -40,7 +40,7 @@ const Topbar = ({ userRole = 'user', userName, userEmail, isSidebarOpen, setIsSi
   }
 
   return (
-    <header className={`${theme.bg} text-white shadow-md fixed top-0 left-0 right-0 z-30`}>
+    <header className={`${theme.bg} text-white shadow-md fixed top-0 left-0 right-0 z-[60]`}>
       <div className="flex items-center justify-between px-4 lg:px-6 py-4">
         {/* Left side - Hamburger Menu & Logo */}
         <div className="flex items-center gap-4">
@@ -90,14 +90,16 @@ const Topbar = ({ userRole = 'user', userName, userEmail, isSidebarOpen, setIsSi
             </div>
 
             {/* User Info (hidden on mobile, shown on larger screens) */}
-            <div className="hidden md:block text-left">
-              <p className="text-sm font-medium">{userName || roleDisplayName}</p>
+            <div className="hidden md:block text-left min-w-0 max-w-[220px]">
+              <p className="text-sm font-medium truncate" title={userName || roleDisplayName}>
+                {userName || roleDisplayName}
+              </p>
               {userRole === 'user' ? (
                 <span className="inline-block mt-0.5 px-2 py-0.5 rounded bg-blue-600 text-white text-xs font-medium">
                   User
                 </span>
               ) : (
-                <p className="text-xs mt-0.5 opacity-75">
+                <p className="text-xs mt-0.5 opacity-75 truncate" title={userEmail || `${roleDisplayName} Account`}>
                   {userEmail || `${roleDisplayName} Account`}
                 </p>
               )}
@@ -126,7 +128,7 @@ const Topbar = ({ userRole = 'user', userName, userEmail, isSidebarOpen, setIsSi
               `}>
                 {/* User Info Section */}
                 <div className={`${theme.lightBg} px-4 py-3 border-b ${theme.border}`}>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900 break-all">
                     {userName || roleDisplayName}
                   </p>
                   {userRole === 'user' ? (
@@ -134,7 +136,7 @@ const Topbar = ({ userRole = 'user', userName, userEmail, isSidebarOpen, setIsSi
                       User
                     </span>
                   ) : (
-                    <p className="text-xs mt-1 text-gray-600">
+                    <p className="text-xs mt-1 text-gray-600 break-all">
                       {userEmail || `${roleDisplayName} Account`}
                     </p>
                   )}

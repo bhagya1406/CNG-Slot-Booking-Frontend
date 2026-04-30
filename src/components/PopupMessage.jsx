@@ -36,7 +36,7 @@ export default function PopupMessage({
               <div className={`w-2.5 h-2.5 rounded-full ${styles.accent}`} />
               <h3 className="font-semibold text-base">{title}</h3>
             </div>
-            {message && <p className="mt-2 text-sm leading-relaxed">{message}</p>}
+            {message && <p className="mt-2 text-sm leading-relaxed break-words">{message}</p>}
           </div>
           <button
             type="button"
